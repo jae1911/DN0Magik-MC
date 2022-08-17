@@ -101,4 +101,4 @@ def get_user_remoteid(username: str):
     if not user_exists:
         return None
 
-    return str(b64encode(str(user_exists.id).encode("ascii")))
+    return user_exists.id

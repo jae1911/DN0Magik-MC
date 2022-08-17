@@ -8,7 +8,7 @@ from utils.dbutils import (
     verify_login,
     get_user_remoteid,
 )
-from utils.secretsutil import encode_auth_jwt
+from utils.secretsutil import encode_auth_jwt, check_auth_jwt
 
 user_api = Blueprint("user_api", __name__)
 
@@ -100,7 +100,7 @@ def userapi_auth():
                 {"name": "preferredLanguage", "value": "en-us"},
                 {"name": "registrationCountry", "value": "SAV"},
             ],
-            "id": 1,
+            "id": remoteid,
         },
         "clientToken": client_token,
         "accessToken": auth_jwt,
@@ -108,6 +108,49 @@ def userapi_auth():
         "selectedProfile": {"name": username, "id": user_uuid},
     }
 
-    print(res)
+    return jsonify(res), 200
+
+
+@user_api.get("/minecraft/profile")
+def userapi_minecraft_profile():
+    data = request.headers.get("Authorization")
+
+    if not data:
+        res = {
+            "error": "ForbiddenOperationException",
+            "errorMessage": "Incorrect login or password",
+        }
+        return jsonify(res), 400
+
+    token = data.replace("Bearer ", "")
+
+    jwt_check = check_auth_jwt(token)
+
+    if not jwt_check:
+        res = {
+            "error": "ForbiddenOperationException",
+            "errorMessage": "Incorrect login or password",
+        }
+        return jsonify(res), 400
+
+    username = jwt_check["sub"]
+    uuid = get_uuid_from_username(username)
+
+    # TODO: GET SKINS
+
+    res = {
+        "id": uuid,
+        "name": username,
+        "skins": [
+            {
+                "id": "8c94945e-d0b4-4df8-97d1-d8d397624f93",
+                "state": "ACTIVE",
+                # TEMPORARY
+                "url": "https://bm.jae.fi/default.png",
+                "variant": "SLIM",
+            }
+        ],
+        "CAPES": [],
+    }
 
     return jsonify(res), 200
