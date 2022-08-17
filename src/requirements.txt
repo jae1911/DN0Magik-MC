@@ -4,6 +4,6 @@ greenlet==1.1.2
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
+peewee==3.15.1
 PyJWT==2.4.0
-SQLAlchemy==1.4.40
 Werkzeug==2.2.2
