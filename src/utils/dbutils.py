@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
+from base64 import b64encode
 
-from bcrypt import gensalt, hashpw
+from bcrypt import gensalt, hashpw, checkpw
 
 from utils.redisutil import cache_val, get_val
 from utils.db import get_object, Users, UsernameHistory
@@ -52,16 +53,16 @@ def get_all_users_count():
 
 
 def hash_password(password: str):
-    salt = gensalt()
-    hashed = hashpw(str.encode(password), salt)
+    salt = gensalt(10)
+    hashed = hashpw(password.encode("utf-8"), salt)
 
-    return hashed.decode()
+    return str(hashed.decode())
 
 
 def register_user(username: str, password: str):
     # USER CHECK
-    existing_user = Users.select().where(Users.username == username).count()
-    if existing_user > 0:
+    existing_user = get_object(Users, username=username)
+    if existing_user:
         return None
 
     # DO REGISTRATION
@@ -71,7 +72,7 @@ def register_user(username: str, password: str):
 
     user = Users.create(
         username=username,
-        password=hash_password,
+        password=hashed_pass,
         uuid=uuid,
         registered_on=register_date,
     )
@@ -84,3 +85,20 @@ def register_user(username: str, password: str):
     uh.save()
 
     return uuid
+
+
+def verify_login(username: str, password: str):
+    user_exists = get_object(Users, username=username)
+    if not user_exists:
+        return False
+
+    check = hashpw(str.encode(password), str.encode(user_exists.password))
+    return check
+
+
+def get_user_remoteid(username: str):
+    user_exists = get_object(Users, username=username)
+    if not user_exists:
+        return None
+
+    return str(b64encode(str(user_exists.id).encode("ascii")))
