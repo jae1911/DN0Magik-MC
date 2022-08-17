@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify
 
+from utils.dbutils import get_users_registered_last_day, get_all_users_count
+
 status_api = Blueprint("status_api", __name__)
 
 # KEPT FOR NICE DISPLAY ON LEGACY LAUNCHERS
@@ -22,6 +24,13 @@ def status_api_check():
 @status_api.route("/orders/statistics")
 def status_order_stats():
     # TODO: pull data from DB to feed this endpoint
-    sample_res = {"total": "1", "last24h": "1", "saleVelocityPerSecon": "0"}
+    last_day_users = get_users_registered_last_day()
+    all_users = get_all_users_count()
+
+    sample_res = {
+        "total": all_users,
+        "last24h": last_day_users,
+        "saleVelocityPerSecon": 0,
+    }
 
     return jsonify(sample_res)
