@@ -16,3 +16,12 @@ def status_api_check():
     ]
 
     return jsonify(sample_res)
+
+
+# KEPT AS LEGACY FOR NICE DISPLAY
+@status_api.route("/orders/statistics")
+def status_order_stats():
+    # TODO: pull data from DB to feed this endpoint
+    sample_res = {"total": "1", "last24h": "1", "saleVelocityPerSecon": "0"}
+
+    return jsonify(sample_res)
