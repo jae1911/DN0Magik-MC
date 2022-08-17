@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
+from uuid import uuid4
+
+from bcrypt import gensalt, hashpw
 
 from utils.redisutil import cache_val, get_val
-from utils.db import get_object, Users
+from utils.db import get_object, Users, UsernameHistory
 
 
 def get_uuid_from_username(username: str):
@@ -46,3 +49,38 @@ def get_all_users_count():
     cache_val(cachekey, number_all_users, expiration=3600)
 
     return number_all_users
+
+
+def hash_password(password: str):
+    salt = gensalt()
+    hashed = hashpw(str.encode(password), salt)
+
+    return hashed.decode()
+
+
+def register_user(username: str, password: str):
+    # USER CHECK
+    existing_user = Users.select().where(Users.username == username).count()
+    if existing_user > 0:
+        return None
+
+    # DO REGISTRATION
+    hashed_pass = hash_password(password)
+    uuid = str(uuid4())
+    register_date = datetime.now()
+
+    user = Users.create(
+        username=username,
+        password=hash_password,
+        uuid=uuid,
+        registered_on=register_date,
+    )
+
+    uh = UsernameHistory.create(
+        username=username, changed_on=register_date, uuid=user.uuid
+    )
+
+    user.save()
+    uh.save()
+
+    return uuid

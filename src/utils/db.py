@@ -19,7 +19,6 @@ class BaseModel(Model):
 
 
 class Users(BaseModel):
-    id = IntegerField(primary_key=True)
     username = CharField(null=False)
     password = CharField(null=True)  # NULL TRUE = IN CASE OF SSO LOGIN/REGISTER
     uuid = CharField(null=False)
@@ -29,10 +28,9 @@ class Users(BaseModel):
 
 
 class UsernameHistory(BaseModel):
-    id = IntegerField(primary_key=True)
     username = CharField(null=False)
     changed_on = DateTimeField(null=False)
-    uuid = ForeignKeyField(Users, backref="uuid")
+    uuid = ForeignKeyField(model=Users, column_name="uuid")
 
 
 def get_object(model, **kwargs):
