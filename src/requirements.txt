@@ -6,4 +6,7 @@ Jinja2==3.1.2
 MarkupSafe==2.1.1
 peewee==3.15.1
 PyJWT==2.4.0
+sqlparse==0.4.2
+tabulate==0.8.10
 Werkzeug==2.2.2
+yoyo-migrations==7.3.2
