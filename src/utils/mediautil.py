@@ -5,6 +5,7 @@ from boto3 import client
 from botocore.exceptions import ClientError
 
 from utils.db import Media
+from utils.redisutil import cache_val, get_val
 
 # ENV
 S3_ENDPOINT = environ.get("S3_ENDPOINT")
@@ -60,16 +61,32 @@ def get_hash(file: str):
 
 
 def get_player_skin(uuid: str):
+    cachekey = f"player_skin_hash_{uuid}"
+    cached_val = get_val(cachekey)
+    if cached_val:
+        return cached_val
+
     try:
         m = Media.select().where(Media.uuid == uuid and Media.type == "SKIN").get()
+
+        cache_val(cachekey, m.hash)
+
         return m.hash
     except:
         return None
 
 
 def get_player_cape(uuid: str):
+    cachekey = f"player_cape_hash_{uuid}"
+    cached_val = get_val(cachekey)
+    if cached_val:
+        return cached_val
+
     try:
         m = Media.select().where(Media.uuid == uuid and Media.type == "CAPE").get()
+
+        cache_val(cachekey, m.hash)
+
         return m.hash
     except:
         return None
