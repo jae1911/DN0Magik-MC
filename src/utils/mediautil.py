@@ -57,3 +57,11 @@ def get_hash(file: str):
             h.update(chunk)
 
     return h.hexdigest()
+
+
+def get_player_skin(uuid: str):
+    try:
+        m = Media.select().where(Media.uuid == uuid and Media.type == "SKIN").get()
+        return m.hash
+    except:
+        return None

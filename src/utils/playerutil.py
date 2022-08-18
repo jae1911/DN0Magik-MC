@@ -1,4 +1,10 @@
+from os import environ
+
 from utils.dbutils import get_uuid_from_username, get_user_remoteid
+from utils.mediautil import get_player_skin
+
+# ENV
+STORAGE_BASEURL = environ.get("STORAGE_BASEURL")
 
 
 def generate_login_dict(username: str, token: str, client_identifer: str):
@@ -27,16 +33,20 @@ def generate_user_profile(username: str):
     user_uuid = get_uuid_from_username(username)
 
     # TODO: SKINHANDLER
+    skin_hash = get_player_skin(user_uuid)
+    if not skin_hash:
+        skin_hash = "default"
+
+    final_skin_uri = f"{STORAGE_BASEURL}/skin/{skin_hash}.png"
 
     res = {
         "id": user_uuid,
         "name": username,
         "skins": [
             {
-                "id": "8c94945e-d0b4-4df8-97d1-d8d397624f93",
+                "id": skin_hash,
                 "state": "ACTIVE",
-                # TEMPORARY
-                "url": "https://bm.jae.fi/default.png",
+                "url": final_skin_uri,
                 "variant": "SLIM",
             }
         ],
