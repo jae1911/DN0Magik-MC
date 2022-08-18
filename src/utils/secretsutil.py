@@ -44,8 +44,6 @@ def check_auth_jwt(token: str, client_identifer: str):
             ctoken = data["yggt"]
             cuser = data["sub"]
 
-            print(f"{client_identifer} - {ctoken}")
-
             if client_identifer == ctoken:
                 return cuser
             else:

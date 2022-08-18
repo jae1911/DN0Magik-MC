@@ -146,8 +146,6 @@ def userapi_refresh():
 
     jwt_auth_ok = check_auth_jwt(token, client_token)
 
-    print(jwt_auth_ok)
-
     if not jwt_auth_ok:
         res = {
             "error": "ForbiddenOperationException",
