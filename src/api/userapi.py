@@ -9,6 +9,7 @@ from utils.dbutils import (
     get_user_remoteid,
 )
 from utils.secretsutil import encode_auth_jwt, check_auth_jwt
+from utils.playerutil import generate_login_dict, generate_user_profile
 
 user_api = Blueprint("user_api", __name__)
 
@@ -75,8 +76,6 @@ def userapi_auth():
         }
         return jsonify(res), 400
 
-    print(data)
-
     # VERIFY LOGIN
     if not verify_login(username, password):
         res = {
@@ -90,23 +89,8 @@ def userapi_auth():
         client_token = str(uuid4())
 
     auth_jwt = encode_auth_jwt(username, client_token)
-    user_uuid = get_uuid_from_username(username)
-    remoteid = get_user_remoteid(username)
 
-    res = {
-        "user": {
-            "username": username,
-            "properties": [
-                {"name": "preferredLanguage", "value": "en-us"},
-                {"name": "registrationCountry", "value": "SAV"},
-            ],
-            "id": remoteid,
-        },
-        "clientToken": client_token,
-        "accessToken": auth_jwt,
-        "availableProfiles": [{"name": username, "id": user_uuid}],
-        "selectedProfile": {"name": username, "id": user_uuid},
-    }
+    res = generate_login_dict(username, auth_jwt, client_token)
 
     return jsonify(res), 200
 
@@ -124,7 +108,7 @@ def userapi_minecraft_profile():
 
     token = data.replace("Bearer ", "")
 
-    jwt_check = check_auth_jwt(token)
+    jwt_check = check_auth_jwt(token, None)
 
     if not jwt_check:
         res = {
@@ -134,23 +118,44 @@ def userapi_minecraft_profile():
         return jsonify(res), 400
 
     username = jwt_check["sub"]
-    uuid = get_uuid_from_username(username)
 
-    # TODO: GET SKINS
+    res = generate_user_profile(username)
 
-    res = {
-        "id": uuid,
-        "name": username,
-        "skins": [
-            {
-                "id": "8c94945e-d0b4-4df8-97d1-d8d397624f93",
-                "state": "ACTIVE",
-                # TEMPORARY
-                "url": "https://bm.jae.fi/default.png",
-                "variant": "SLIM",
-            }
-        ],
-        "CAPES": [],
-    }
+    return jsonify(res), 200
+
+
+@user_api.post("/refresh")
+def userapi_refresh():
+    data = request.json
+    if not data:
+        res = {
+            "error": "ForbiddenOperationException",
+            "errorMessage": "No data found in request",
+        }
+        return jsonify(res), 400
+
+    token = data.get("accessToken")
+    client_token = data.get("clientToken")
+
+    if not token or not client_token:
+        res = {
+            "error": "ForbiddenOperationException",
+            "errorMessage": "No data found in request",
+        }
+        return jsonify(res), 400
+
+    jwt_auth_ok = check_auth_jwt(token, client_token)
+
+    print(jwt_auth_ok)
+
+    if not jwt_auth_ok:
+        res = {
+            "error": "ForbiddenOperationException",
+            "errorMessage": "Invalid token",
+        }
+        return jsonify(res), 400
+
+    auth_jwt = encode_auth_jwt(jwt_auth_ok, client_token)
+    res = generate_login_dict(jwt_auth_ok, auth_jwt, client_token)
 
     return jsonify(res), 200

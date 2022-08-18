@@ -20,7 +20,7 @@ def encode_auth_jwt(username: str, client_token: str):
         "yggt": client_token,
         "spr": username,
         "iss": "dn0magik",
-        "exp": int(time()) + 86400 * 180,
+        "exp": int(time()) + 86400,
         "iat": int(time()),
     }
 
@@ -29,10 +29,26 @@ def encode_auth_jwt(username: str, client_token: str):
     return encoded_jwt
 
 
-def check_auth_jwt(token: str):
-    try:
-        data = decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
-    except:
-        return None
+def check_auth_jwt(token: str, client_identifer: str):
+    if not client_identifer:
+        try:
+            data = decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+        except:
+            return None
 
-    return data
+        return data
+    else:
+        try:
+            data = decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
+
+            ctoken = data["yggt"]
+            cuser = data["sub"]
+
+            print(f"{client_identifer} - {ctoken}")
+
+            if client_identifer == ctoken:
+                return cuser
+            else:
+                return False
+        except:
+            return None
