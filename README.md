@@ -9,3 +9,17 @@ The goals of the projects are:
  - IPv6-ready
  - Integration with existing Minecraft skins
  - Fully Open-Source
+
+### Working
+
+ - Register (`/api/v1/register`)
+ - Login (`/authenticate`)
+ - Profile display (`/minecraft/profile`)
+ - Token refresh (`/refresh`)
+ - Status check (`/check`)
+ - Sales stats (`/orders/statistics`)
+
+### TODO
+
+ - Skin API
+ - AuthLib modification (for new authentication to work within the game itself)
