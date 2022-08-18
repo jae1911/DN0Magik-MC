@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, remove
 from hashlib import sha1
 
 from boto3 import client
@@ -32,7 +32,18 @@ def upload_file(path: str, type: str, player: str):
     except ClientError as e:
         return False
 
+    remove(path)
+
     m.save()
+    return True
+
+
+def download_file(hash: str, path: str):
+    try:
+        s3_client.download_file(S3_BUCKET, hash, path)
+    except:
+        return False
+
     return True
 
 
