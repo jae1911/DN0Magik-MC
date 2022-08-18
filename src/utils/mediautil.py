@@ -23,7 +23,7 @@ s3_client = client("s3", **client_args)
 
 def upload_file(path: str, type: str, player: str):
     file_hash = get_hash(path)
-    final_file_name = f"{file_hash}.png"
+    final_file_name = f"{type}/{file_hash}.png"
 
     m = Media.create(hash=file_hash, type=type, uuid=player)
 
@@ -62,6 +62,14 @@ def get_hash(file: str):
 def get_player_skin(uuid: str):
     try:
         m = Media.select().where(Media.uuid == uuid and Media.type == "SKIN").get()
+        return m.hash
+    except:
+        return None
+
+
+def get_player_cape(uuid: str):
+    try:
+        m = Media.select().where(Media.uuid == uuid and Media.type == "CAPE").get()
         return m.hash
     except:
         return None
