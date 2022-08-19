@@ -44,14 +44,16 @@ def generate_user_profile(username: str):
     cape_hash = get_player_cape(user_uuid)
     id_cape = "default"
     url_cape = f"{STORAGE_BASEURL}/cape/default.png"
+    cape_active = "INACTIVE"
 
     if cape_hash:
         id_cape = cape_hash
         url_cape = f"{STORAGE_BASEURL}/cape/{cape_hash}.png"
+        cape_active = "ACTIVE"
 
     cape_res = {
         "id": id_cape,
-        "state": "ACTIVE",
+        "state": cape_active,
         "url": url_cape,
     }
 
