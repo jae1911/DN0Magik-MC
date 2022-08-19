@@ -36,6 +36,7 @@ class UsernameHistory(BaseModel):
 class Media(BaseModel):
     hash = CharField(null=False)
     type = CharField(null=False)  # MAY BE "SKIN" OR "CAPE" DEPENDING ON WHAT USER CHOSE
+    variant = CharField()  # MAY BE "SLIM", "CLASSIC" OR "CAPE"
     uuid = ForeignKeyField(model=Users, column_name="uuid")
 
 
