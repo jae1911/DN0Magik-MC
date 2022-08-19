@@ -1,4 +1,4 @@
-from os import environ, remove
+from os import environ, remove, mkdir
 from hashlib import sha1
 
 from boto3 import client
@@ -20,13 +20,16 @@ client_args = {
 }
 
 s3_client = client("s3", **client_args)
+ALLOWED_EXTENSIONS = {"png"}
+TEMP_UPLOAD_FOLDER = "/tmp/mc/"
 
 
 def upload_file(path: str, type: str, player: str):
     file_hash = get_hash(path)
     final_file_name = f"{type}/{file_hash}.png"
+    uuid = get_uuid_from_username(player)
 
-    m = Media.create(hash=file_hash, type=type, uuid=player)
+    m = Media.create(hash=file_hash, type=type, uuid=uuid)
 
     try:
         res = s3_client.upload_file(path, S3_BUCKET, final_file_name)
@@ -113,3 +116,13 @@ def remove_skin_from_player(username: str):
     delete_file(full_path)
 
     return None
+
+
+def is_file_allowed(filename: str):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def check_temp_folder():
+    os.mkdir(f"{TEMP_UPLOAD_FOLDER}")
+    os.mkdir(f"{TEMP_UPLOAD_FOLDER}/skins")
+    os.mkdir(f"{TEMP_UPLOAD_FOLDER}/capes")
