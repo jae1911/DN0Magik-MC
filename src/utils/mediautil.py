@@ -48,6 +48,15 @@ def download_file(hash: str, path: str):
     return True
 
 
+def delete_file(path: str):
+    try:
+        s3_client.delete_object(S3_BUCKET, path)
+    except:
+        return False
+
+    return True
+
+
 def get_hash(file: str):
     h = sha1()
 
@@ -90,3 +99,17 @@ def get_player_cape(uuid: str):
         return m.hash
     except:
         return None
+
+
+def remove_skin_from_player(username: str):
+    uuid = get_uuid_from_username(username)
+
+    m = Media.select().where(Media.uuid == uuid and Media.type == "SKIN").get()
+
+    full_path = f"SKIN/{m.hash}.png"
+
+    m.delete_instance()
+
+    delete_file(full_path)
+
+    return None
