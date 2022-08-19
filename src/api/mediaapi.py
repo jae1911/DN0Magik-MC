@@ -1,6 +1,6 @@
 from time import time
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from requests import get
 
 from utils.playerutil import generate_user_profile
@@ -10,6 +10,7 @@ from utils.mediautil import (
     check_temp_folder,
     upload_file,
 )
+from utils.secretsutil import check_auth_jwt
 
 media_api = Blueprint("media_api", __name__)
 
@@ -18,7 +19,7 @@ TEMP_UPLOAD_FOLDER = "/tmp/mc/"
 
 @media_api.put("/minecraft/profile/capes/active")
 def media_api_minecraft_profile_capes_active():
-    data = request.header.get("Authorization")
+    data = request.headers.get("Authorization")
 
     if not data:
         res = {
@@ -45,7 +46,7 @@ def media_api_minecraft_profile_capes_active():
 
 @media_api.delete("/minecraft/profile/skins/active")
 def media_api_minecraft_profile_skins_delete():
-    data = request.header.get("Authorization")
+    data = request.headers.get("Authorization")
 
     if not data:
         res = {
@@ -74,7 +75,7 @@ def media_api_minecraft_profile_skins_delete():
 
 @media_api.post("/minecraft/profile/skins")
 def media_api_minecraft_profile_skins_upload():
-    data = request.header.get("Authorization")
+    data = request.headers.get("Authorization")
 
     if not data:
         res = {
@@ -100,6 +101,7 @@ def media_api_minecraft_profile_skins_upload():
             new_skin_url = request.json.get("url")
             if is_file_allowed(new_skin_url):
                 current_time = int(time())
+                check_temp_folder()
                 temp_filename = f"{TEMP_UPLOAD_FOLDER}/skins/{current_time}.png"
                 with get(new_skin_url, stream=True) as r:
                     r.raise_for_status()
