@@ -33,25 +33,27 @@ def generate_user_profile(username: str):
     user_uuid = get_uuid_from_username(username)
 
     # SKIN HANDLER
-    skin_hash = get_player_skin(user_uuid)
+    skin_hash, variant = get_player_skin(user_uuid)
     if not skin_hash:
         skin_hash = "default"
+        variant = "SLIM"
 
     final_skin_uri = f"{STORAGE_BASEURL}/skin/{skin_hash}.png"
 
     # CAPE HANDLER
     cape_hash = get_player_cape(user_uuid)
-    cape_res = {
-        "id": "default",
-        "state": "INACTIVE",
-        "url": f"{STORAGE_BASEURL}/cape/default.png",
-    }
+    id_cape = "default"
+    url_cape = f"{STORAGE_BASEURL}/cape/default.png"
+
     if cape_hash:
-        cape_res = {
-            "id": cape_hash,
-            state: "ACTIVE",
-            "url": f"{STORAGE_BASEURL}/cape/{cape_hash}.png",
-        }
+        id_cape = cape_hash
+        url_cape = f"{STORAGE_BASEURL}/cape/{cape_hash}.png"
+
+    cape_res = {
+        "id": id_cape,
+        "state": "ACTIVE",
+        "url": url_cape,
+    }
 
     res = {
         "id": user_uuid,
@@ -61,7 +63,7 @@ def generate_user_profile(username: str):
                 "id": skin_hash,
                 "state": "ACTIVE",
                 "url": final_skin_uri,
-                "variant": "SLIM",
+                "variant": variant,
             }
         ],
         "CAPES": [cape_res],

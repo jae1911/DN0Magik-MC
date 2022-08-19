@@ -24,12 +24,12 @@ ALLOWED_EXTENSIONS = {"png"}
 TEMP_UPLOAD_FOLDER = "/tmp/mc/"
 
 
-def upload_file(path: str, type: str, player: str):
+def upload_file(path: str, type: str, player: str, variant: str):
     file_hash = get_hash(path)
     final_file_name = f"{type}/{file_hash}.png"
     uuid = get_uuid_from_username(player)
 
-    m = Media.create(hash=file_hash, type=type, uuid=uuid)
+    m = Media.create(hash=file_hash, type=type, uuid=uuid, variant=variant)
 
     try:
         res = s3_client.upload_file(path, S3_BUCKET, final_file_name)
@@ -76,16 +76,17 @@ def get_player_skin(uuid: str):
     cachekey = f"player_skin_hash_{uuid}"
     cached_val = get_val(cachekey)
     if cached_val:
-        return cached_val
+        return cached_val, get_val(f"{cachekey}_variant")
 
     try:
         m = Media.select().where(Media.uuid == uuid and Media.type == "SKIN").get()
 
         cache_val(cachekey, m.hash)
+        cache_val(f"{cachekey}_variant", m.variant)
 
-        return m.hash
+        return m.hash, m.variant
     except:
-        return None
+        return None, None
 
 
 def get_player_cape(uuid: str):

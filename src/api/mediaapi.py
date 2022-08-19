@@ -106,7 +106,13 @@ def media_api_minecraft_profile_skins_upload():
                     with open(temp_filename, "wb") as file:
                         for chunk in r.iter_content(chunk_size=8192):
                             file.write(chunk)
-                upload_file(temp_filename, "SKIN", jwt_check)
+
+                variant = (
+                    request.json.get("variant")
+                    if request.json.get("variant")
+                    else "SLIM"
+                )
+                upload_file(temp_filename, "SKIN", jwt_check, variant)
 
                 res = {"status": "ok"}
                 return jsonify(res), 200
@@ -126,6 +132,8 @@ def media_api_minecraft_profile_skins_upload():
         }
         return jsonify(res), 400
 
+    variant = request.json.get("variant") if request.json.get("variant") else "SLIM"
+
     filename = secure_filename(file.filename)
     current_time = int(time())
     check_temp_folder()
@@ -133,7 +141,7 @@ def media_api_minecraft_profile_skins_upload():
     file.save(final_temp_file)
 
     # UPLOAD TO S3
-    upload_file(final_temp_file, "SKIN", jwt_check)
+    upload_file(final_temp_file, "SKIN", jwt_check, variant)
 
     # RESPONSE OR FLASK WILL SCREAM
     res = {"status": "ok"}
