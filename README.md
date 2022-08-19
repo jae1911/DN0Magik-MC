@@ -18,6 +18,9 @@ The goals of the projects are:
  - Token refresh (`/refresh`)
  - Status check (`/check`)
  - Sales stats (`/orders/statistics`)
+ - Get active capes (`/minecraft/profile/capes/active`)
+ - Get active skins (`/minecraft/profile/skins/active`)
+ - Upload skin (`/minecraft/profile/skins`)
 
 ### TODO
 
