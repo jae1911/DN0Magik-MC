@@ -33,6 +33,12 @@ class UsernameHistory(BaseModel):
     uuid = ForeignKeyField(model=Users, column_name="uuid")
 
 
+class Media(BaseModel):
+    hash = CharField(null=False)
+    type = CharField(null=False)  # MAY BE "SKIN" OR "CAPE" DEPENDING ON WHAT USER CHOSE
+    uuid = ForeignKeyField(model=Users, column_name="uuid")
+
+
 def get_object(model, **kwargs):
     try:
         return model.get(**kwargs)
