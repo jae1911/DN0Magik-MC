@@ -1,6 +1,7 @@
 from time import time
 
 from flask import Blueprint, jsonify
+from requests import get
 
 from utils.playerutil import generate_user_profile
 from utils.mediautil import (
@@ -95,6 +96,21 @@ def media_api_minecraft_profile_skins_upload():
     username = jwt_check["sub"]
 
     if "file" not in request.files:
+        if request.json and request.json.get("url"):
+            new_skin_url = request.json.get("url")
+            if is_file_allowed(new_skin_url):
+                current_time = int(time())
+                temp_filename = f"{TEMP_UPLOAD_FOLDER}/skins/{current_time}.png"
+                with get(new_skin_url, stream=True) as r:
+                    r.raise_for_status()
+                    with open(temp_filename, "wb") as file:
+                        for chunk in r.iter_content(chunk_size=8192):
+                            file.write(chunk)
+                upload_file(temp_filename, "SKIN", jwt_check)
+
+                res = {"status": "ok"}
+                return jsonify(res), 200
+
         res = {
             "error": "ForbiddenOperationException",
             "errorMessage": "No file",
@@ -113,7 +129,7 @@ def media_api_minecraft_profile_skins_upload():
     filename = secure_filename(file.filename)
     current_time = int(time())
     check_temp_folder()
-    final_temp_file = f"{TEMP_UPLOAD_FOLDER}/SKINS/{current_time}_{filename}"
+    final_temp_file = f"{TEMP_UPLOAD_FOLDER}/skins/{current_time}_{filename}"
     file.save(final_temp_file)
 
     # UPLOAD TO S3
