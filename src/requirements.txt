@@ -27,6 +27,6 @@ six==1.16.0
 sqlparse==0.4.2
 tabulate==0.8.10
 urllib3==1.26.11
-Werkzeug==2.2.2
+Werkzeug==2.2.3
 wrapt==1.14.1
 yoyo-migrations==7.3.2
